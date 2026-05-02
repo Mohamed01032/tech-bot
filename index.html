@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechBot Pro — AI Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">🔑</div>
+    <h2 class="modal-title">أدخل مفتاح Anthropic API</h2>
+    <p class="modal-desc">مفتاحك يُحفظ على جهازك فقط ولا يُرسل لأي خادم.<br>احصل على مفتاحك من <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></p>
+    <input type="password" id="api-key-input" class="modal-input" placeholder="sk-ant-api03-..." spellcheck="false" autocomplete="off">
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="saveKey()">💾 حفظ وبدء المحادثة</button>
+    </div>
+    <p class="modal-note">🔒 مفتاحك آمن — يُخزَّن في متصفحك فقط (localStorage)</p>
+  </div>
+</div>
+
+<!-- Animated Background -->
+<div class="bg-animated">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#38bdf8"/><stop offset="100%" style="stop-color:#818cf8"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div>
+        <h1 class="logo-text">TechBot<span>Pro</span></h1>
+        <p class="logo-sub">AI Assistant v2.0</p>
+      </div>
+    </div>
+
+    <button class="new-chat-btn" onclick="clearChat()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      محادثة جديدة
+    </button>
+
+    <div class="sidebar-section-title">قدرات TechBot</div>
+    <div class="capabilities">
+      <div class="cap-item"><span class="cap-icon">🌐</span><span>دعم اللغتين العربية والإنجليزية</span></div>
+      <div class="cap-item"><span class="cap-icon">💻</span><span>حل المشاكل البرمجية وكتابة الكود</span></div>
+      <div class="cap-item"><span class="cap-icon">🔒</span><span>نصائح الأمن السيبراني</span></div>
+      <div class="cap-item"><span class="cap-icon">🛠️</span><span>دعم تقني متخصص</span></div>
+      <div class="cap-item"><span class="cap-icon">📡</span><span>شرح المفاهيم التقنية</span></div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="model-badge">
+        <div class="model-dot"></div>
+        <span>Claude 3 Sonnet · Online</span>
+      </div>
+      <button class="settings-btn" onclick="showModal()" style="margin-top:10px;">⚙️ تغيير مفتاح API</button>
+    </div>
+  </aside>
+
+  <!-- Main Chat -->
+  <main class="chat-main">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="header-center">
+        <div class="header-status">
+          <div class="pulse-dot"></div>
+          <span id="status-text">TechBot Pro — متصل ومستعد للمساعدة</span>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button id="lang-btn" onclick="toggleLang()" class="lang-btn" title="Toggle Language">🌐 EN</button>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messages">
+      <div class="welcome-screen" id="welcome">
+        <div class="welcome-avatar">
+          <div class="avatar-ring">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#38bdf8"/><stop offset="100%" style="stop-color:#818cf8"/></linearGradient></defs>
+            </svg>
+          </div>
+        </div>
+        <h2 class="welcome-title">أهلاً! أنا TechBot Pro 👋</h2>
+        <p class="welcome-desc">مساعدك الذكي للدعم التقني — يتحدث العربية والإنجليزية بطلاقة.<br>اسألني عن أي مشكلة تقنية وسأساعدك فوراً.</p>
+        <div class="suggestions-grid" id="suggestions">
+          <button class="suggest-card" onclick="sendSuggestion(this)">
+            <span class="suggest-icon">🌐</span>
+            <span>الواي فاي بطيء، إيه الحل؟</span>
+          </button>
+          <button class="suggest-card" onclick="sendSuggestion(this)">
+            <span class="suggest-icon">💻</span>
+            <span>My laptop is overheating, how to fix it?</span>
+          </button>
+          <button class="suggest-card" onclick="sendSuggestion(this)">
+            <span class="suggest-icon">🔒</span>
+            <span>إزاي أحمي حساباتي من الهاكرز؟</span>
+          </button>
+          <button class="suggest-card" onclick="sendSuggestion(this)">
+            <span class="suggest-icon">⚡</span>
+            <span>Write a Python script to check internet speed</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-zone">
+      <div class="input-card">
+        <textarea id="user-input" placeholder="اكتب رسالتك هنا... / Type your message here..." rows="1"></textarea>
+        <div class="input-actions">
+          <span class="char-count" id="char-count">0</span>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="input-hint">Enter للإرسال · Shift+Enter لسطر جديد · اضغط <kbd>/</kbd> للاقتراحات</p>
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
